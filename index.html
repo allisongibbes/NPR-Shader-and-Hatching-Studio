@@ -1,0 +1,127 @@
+<style>
+  .npr-widget {
+    font-family: Arial, sans-serif;
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    border: 2px solid #333;
+    border-radius: 8px;
+    background-color: #f4f6f8;
+    text-align: center;
+  }
+  .stage {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background-color: #111;
+    border: 2px solid #444;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .controls-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 15px;
+  }
+  .shader-btn {
+    padding: 12px 8px;
+    font-size: 0.95rem;
+    font-weight: bold;
+    cursor: pointer;
+    background-color: #fff;
+    border: 2px solid #ccc;
+    border-radius: 6px;
+    transition: all 0.2s;
+  }
+  .shader-btn:hover { background-color: #e3f2fd; }
+  .shader-btn.active { background-color: #1976d2; color: white; border-color: #1565c0; }
+  .desc-box {
+    background: #fff;
+    padding: 15px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    font-size: 1rem;
+    color: #333;
+    text-align: left;
+    min-height: 70px;
+  }
+</style>
+
+<div class="npr-widget">
+  <h2>Interactive NPR & Shading Studio</h2>
+  <p>Toggle between standard photorealistic rendering and stylized Non-Photorealistic Rendering (NPR) shader techniques.</p>
+  
+  <div class="stage" id="nprStage">
+    <!-- Rendered via JS -->
+  </div>
+
+  <div class="controls-grid">
+    <button class="shader-btn active" onclick="setShader('pbr')">1. Photorealistic (PBR)</button>
+    <button class="shader-btn" onclick="setShader('cel')">2. Cel-Shaded / Posterized</button>
+    <button class="shader-btn" onclick="setShader('comic')">3. Comic Ink & Halftone</button>
+  </div>
+
+  <div class="desc-box" id="nprDesc">
+    <strong>Photorealistic Rendering (PBR):</strong> Calculates smooth light reflections, soft shadows, and glossy highlights to make surfaces look like tangible physical materials.
+  </div>
+</div>
+
+<script>
+  const stage = document.getElementById('nprStage');
+  const desc = document.getElementById('nprDesc');
+  const buttons = document.querySelectorAll('.npr-widget .shader-btn');
+
+  const shaders = {
+    pbr: {
+      svg: `<svg width="400" height="225" viewBox="0 0 400 225">
+              <defs>
+                <radialGradient id="pbrGrad" cx="35%" cy="35%" r="60%">
+                  <stop offset="0%" stop-color="#90caf9"/>
+                  <stop offset="50%" stop-color="#1976d2"/>
+                  <stop offset="100%" stop-color="#0d47a1"/>
+                </radialGradient>
+              </defs>
+              <circle cx="200" cy="110" r="60" fill="url(#pbrGrad)"/>
+              <ellipse cx="180" cy="85" rx="12" ry="6" fill="#fff" opacity="0.6"/>
+              <text x="200" y="200" fill="#aaa" font-size="12" text-anchor="middle">Smooth mathematically interpolated gradients & soft highlights</text>
+            </svg>`,
+      text: "<strong>Photorealistic Rendering (PBR):</strong> Relies on complex mathematical light simulations, glossy specular highlights, and soft ray-traced shadows to mimic physical reality."
+    },
+    cel: {
+      svg: `<svg width="400" height="225" viewBox="0 0 400 225">
+              <circle cx="200" cy="110" r="60" fill="#4caf50"/>
+              <path d="M 145 75 A 60 60 0 0 1 255 145 L 200 110 Z" fill="#2e7d32"/>
+              <circle cx="180" cy="90" r="10" fill="#a5d6a7"/>
+              <circle cx="200" cy="110" r="62" fill="none" stroke="#000" stroke-width="4"/>
+              <text x="200" y="200" fill="#aaa" font-size="12" text-anchor="middle">Hard shadow threshold lines mimicking traditional hand-painted cels</text>
+            </svg>`,
+      text: "<strong>Cel-Shaded / Posterized Shader:</strong> Strips away soft gradient lighting, replacing them with sharp, banded color thresholds that evoke classic 2D animation cels in a 3D environment."
+    },
+    comic: {
+      svg: `<svg width="400" height="225" viewBox="0 0 400 225">
+              <defs>
+                <pattern id="dots" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse">
+                  <circle cx="3" cy="3" r="2.5" fill="#ff5722"/>
+                </pattern>
+              </defs>
+              <circle cx="200" cy="110" r="60" fill="url(#dots)" stroke="#000" stroke-width="5"/>
+              <path d="M 150 150 Q 200 180 250 150" fill="none" stroke="#000" stroke-width="4"/>
+              <text x="200" y="200" fill="#aaa" font-size="12" text-anchor="middle">Graphic ink outlines combined with Ben-Day dot printing textures</text>
+            </svg>`,
+      text: "<strong>Comic Ink & Halftone:</strong> Integrates bold graphic outlines with vintage print textures like Ben-Day dots, treating the digital screen like an authentic comic book page."
+    }
+  };
+
+  function setShader(type) {
+    buttons.forEach(b => b.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+    stage.innerHTML = shaders[type].svg;
+    desc.innerHTML = shaders[type].text;
+  }
+  setShader('pbr');
+</script>
